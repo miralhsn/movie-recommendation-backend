@@ -1,9 +1,15 @@
 const mongoose = require('mongoose');
 
+const movie = await Movie.findById(movieId);
+if (!movie) {
+  return res.status(404).json({ message: 'Movie not found' });
+}
+
 const movieSchema = new mongoose.Schema({
   title: { type: String, required: true },
   genre: { type: String, required: true },
-  director: { type: String, required: true },
+  director: { type: String },
+  year: { type: Number },
   cast: [String],
   releaseDate: Date,
   runtime: Number,
@@ -18,4 +24,6 @@ const movieSchema = new mongoose.Schema({
   reviews: [{ userId: mongoose.Schema.Types.ObjectId, review: String }]
 });
 
-module.exports = mongoose.model('Movie', movieSchema);
+const Movie = mongoose.model('Movie', movieSchema);
+
+module.exports = Movie;
