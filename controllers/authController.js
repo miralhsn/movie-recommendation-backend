@@ -27,6 +27,7 @@ exports.register = async (req, res) => {
     // Send the token in response
     res.status(201).json({ token });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -61,37 +62,40 @@ exports.login = async (req, res) => {
 // Update user profile (preferences and wishlist)
 exports.updateProfile = async (req, res) => {
   const { genres, actors } = req.body;
-  const userId = req.userId; // Assuming that JWT auth middleware populates req.userId
+  const userId = req.user._id; // Correct way to access user._id
 
   try {
-    // Find user and update preferences
     const user = await User.findByIdAndUpdate(
       userId,
       { preferences: { genres, actors } },
       { new: true }
     );
-    
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating profile' });
+    console.error('Error updating profile:', error);
+    res.status(500).json({ message: 'Error updating profile', error: error.message });
   }
 };
 
 // Add movie to wishlist
 exports.addToWishlist = async (req, res) => {
   const { movieId } = req.body;
-  const userId = req.userId; // Assuming that JWT auth middleware populates req.userId
+  const userId = req.user._id; // Correct way to access user._id
 
   try {
-    // Add movieId to the user's wishlist
     const user = await User.findByIdAndUpdate(
       userId,
-      { $addToSet: { wishlist: movieId } }, // Use $addToSet to avoid duplicates
+      { $addToSet: { wishlist: movieId } },
       { new: true }
     );
 
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ message: 'Error adding movie to wishlist' });
+    res.status(500).json({ message: 'Error adding movie to wishlist', error: error.message });
   }
 };

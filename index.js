@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
     res.send('Hello, welcome to the Movie Recommendation System!');
 });
 
-mongoose.connect('mongodb+srv://miralqureshi:ma7T7xXjWECaFOlV@backenddb.f7hwz.mongodb.net/Web?retryWrites=true&w=majority&appName=BackendDB')
+mongoose.connect('mongodb://localhost:27017/')
 .then(() => {
     console.log("Connected to database!");
     })
