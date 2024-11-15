@@ -16,6 +16,8 @@ const upcomingRoutes = require('./routes/upcomingRoutes');
 const newsRoutes = require('./routes/newsRoutes'); 
 const boxOfficeRoutes = require('./routes/boxOfficeRoutes');
 const awardRoutes = require('./routes/awardRoutes');
+const communityRoutes = require('./routes/communityRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 dotenv.config();
 const app = express();
@@ -36,7 +38,8 @@ app.use('/api/upcoming', upcomingRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/boxoffice', boxOfficeRoutes);
 app.use('/api/awards', awardRoutes);
-
+app.use('/api/community', communityRoutes);
+app.use('/api/admin', adminRoutes);
 cron.schedule('0 10 * * *', async () => {
   console.log('Checking for upcoming movie reminders...');
   await upcomingController.sendUpcomingMovieNotifications();
