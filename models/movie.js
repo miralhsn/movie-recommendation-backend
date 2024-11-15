@@ -16,7 +16,16 @@ const movieSchema = new mongoose.Schema({
   ageRating: { type: String }, // e.g., "PG-13", "R", etc.
   parentalGuidance: { type: String }, // Description for parents
   popularity: { type: Number, default: 0 },
-});
+  actors: { type: [String] },  // Array of actors
+  rating: { type: Number, min: 0, max: 10 }, // Rating (0-10)
+  popularity: { type: Number },  // Popularity score
+  releaseYear: { type: Number },
+  language: { type: String },
+  keywords: { type: [String] },  // Array of keywords (e.g., "based on a true story")
+  description: { type: String },
+  trailerLink: { type: String },  // Link to the trailer
+}, { timestamps: true });
+
 
 const Movie = mongoose.model('Movie', movieSchema);
 module.exports = Movie;
