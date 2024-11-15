@@ -1,57 +1,57 @@
-// controllers/reviewController.js
 const Review = require('../models/review');
+const Movie = require('../models/movie');
 
-// Write or update a review
-exports.writeReview = async (req, res) => {
-  const { movieId, reviewText } = req.body;
-  const userId = req.userId; // Assuming userId is available from JWT token
+// Add or Update Review
+exports.addOrUpdateReview = async (req, res) => {
+  const { movieId, reviewText, rating } = req.body;
+  const userId = req.userId; // From the authMiddleware (authenticated user)
 
   try {
-    // Check if the user has already written a review for this movie
-    const existingReview = await Review.findOne({ movieId, userId });
-    if (existingReview) {
-      existingReview.reviewText = reviewText;
-      await existingReview.save();
-      return res.status(200).json({ message: 'Review updated successfully' });
+    let review = await Review.findOne({ movieId, userId });
+
+    if (review) {
+      // Update review
+      review.reviewText = reviewText;
+      review.rating = rating;
+      await review.save();
+      return res.status(200).json({ message: 'Review updated successfully', review });
+    } else {
+      // Add new review
+      review = new Review({ movieId, userId, reviewText, rating });
+      await review.save();
+      return res.status(201).json({ message: 'Review added successfully', review });
     }
-
-    // Add a new review
-    const newReview = new Review({ movieId, userId, reviewText });
-    await newReview.save();
-
-    res.status(201).json({ message: 'Review added successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Error adding or updating review' });
   }
 };
 
-// Get all reviews for a specific movie
-exports.getReviews = async (req, res) => {
-  const { movieId } = req.params;
+// Get Reviews for a Movie
+exports.getReviewsForMovie = async (req, res) => {
+  const movieId = req.params.movieId;
 
   try {
-    const reviews = await Review.find({ movieId }).populate('userId', 'username'); // Populate user info
+    const reviews = await Review.find({ movieId }).populate('userId', 'username');
     res.status(200).json(reviews);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Error fetching reviews' });
   }
 };
 
-// Get review highlights (top-rated and most discussed)
+// Get Review Highlights (Top-rated and Most-discussed)
 exports.getReviewHighlights = async (req, res) => {
   try {
-    // Top-rated reviews (filtering the highest ratings)
-    const topRatedReviews = await Review.aggregate([
-      { $group: { _id: '$movieId', avgRating: { $avg: '$rating' } } },
-      { $sort: { avgRating: -1 } },
-      { $limit: 5 } // Top 5 movies with highest average rating
-    ]);
+    const topRatedReviews = await Review.find()
+      .sort({ rating: -1 })
+      .limit(5) // Top 5 rated reviews
+      .populate('movieId', 'title')
+      .populate('userId', 'username');
 
-    // Most-discussed reviews (count reviews by movieId)
-    const mostDiscussedReviews = await Review.aggregate([
-      { $group: { _id: '$movieId', reviewCount: { $sum: 1 } } },
+    const mostDiscussedReviews = await Movie.aggregate([
+      { $lookup: { from: 'reviews', localField: '_id', foreignField: 'movieId', as: 'reviews' } },
+      { $project: { title: 1, reviewCount: { $size: '$reviews' } } },
       { $sort: { reviewCount: -1 } },
-      { $limit: 5 } // Top 5 movies with most reviews
+      { $limit: 5 } // Most discussed movies
     ]);
 
     res.status(200).json({
@@ -59,6 +59,6 @@ exports.getReviewHighlights = async (req, res) => {
       mostDiscussedReviews
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Error fetching review highlights' });
   }
 };

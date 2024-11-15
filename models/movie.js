@@ -15,6 +15,7 @@ const movieSchema = new mongoose.Schema({
   soundtrack: [{ title: String, artist: String }], // List of soundtrack information
   ageRating: { type: String }, // e.g., "PG-13", "R", etc.
   parentalGuidance: { type: String }, // Description for parents
+  popularity: { type: Number, default: 0 },
 });
 
 const Movie = mongoose.model('Movie', movieSchema);

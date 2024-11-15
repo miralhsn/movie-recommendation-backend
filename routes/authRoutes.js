@@ -3,9 +3,6 @@ const authController = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
 
-console.log('authController:', authController);
-console.log('authMiddleware:', authMiddleware);
-
 // Register new user
 router.post('/register', authController.register);
 

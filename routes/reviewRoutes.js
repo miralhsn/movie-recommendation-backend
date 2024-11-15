@@ -1,16 +1,15 @@
-// routes/reviewRoutes.js
 const express = require('express');
-const reviewController = require('../controllers/reviewController');
-const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
+const reviewController = require('../controllers/reviewController');
+const authenticateToken = require('../middleware/authMiddleware'); // Import authenticateToken
 
-// Write or update a review
-router.post('/review', authMiddleware, reviewController.writeReview);
+// Add or Update Review
+router.post('/review', authenticateToken, reviewController.addOrUpdateReview);
 
-// Get all reviews for a movie
-router.get('/reviews/:movieId', reviewController.getReviews);
+// Get Reviews for a Movie
+router.get('/reviews/:movieId', reviewController.getReviewsForMovie);
 
-// Get review highlights
+// Get Review Highlights (Top-rated and Most-discussed)
 router.get('/review-highlights', reviewController.getReviewHighlights);
 
 module.exports = router;

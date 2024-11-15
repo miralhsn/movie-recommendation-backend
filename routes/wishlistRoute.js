@@ -1,10 +1,10 @@
+// Example route to add a movie to wishlist
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const Movie = require('../models/movie');
 const User = require('../models/user');
 
-// Route to add a movie to the wishlist
 router.put('/wishlist', authMiddleware, async (req, res) => {
   const { movieId } = req.body;
 
@@ -13,18 +13,15 @@ router.put('/wishlist', authMiddleware, async (req, res) => {
   }
 
   try {
-    // Find the user based on the JWT token
-    const user = await User.findById(req.userId);
+    const user = await User.findById(req.userId);  // Assuming you're storing the user's ID in the JWT payload
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if the movie is already in the wishlist
     if (user.wishlist.includes(movieId)) {
       return res.status(400).json({ message: 'Movie is already in the wishlist' });
     }
 
-    // Add the movie to the wishlist
     user.wishlist.push(movieId);
     await user.save();
 
