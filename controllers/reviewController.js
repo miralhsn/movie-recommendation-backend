@@ -23,6 +23,7 @@ exports.addOrUpdateReview = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: 'Error adding or updating review' });
+    console.log(error);
   }
 };
 
